@@ -19,10 +19,11 @@ class Button(enum.Enum):
 
 @dataclass
 class InteractionEvent:
-    Event           : "RenderPickEvent"
+    Event           : "RenderPickEvent" = field(repr=False)
     PanelValues     : Panel
     Framework       : "extInteractionFramework"
     SelectedComp    : "objectCOMP" = field( default = 0 )
+    Timestamp       : int = field( default_factory = lambda : int(absTime.seconds * 1000) )
 
     @cached_property
     def Button(self) -> Button:

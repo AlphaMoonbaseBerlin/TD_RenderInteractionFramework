@@ -19,9 +19,15 @@ class extInteractionFramework:
 		self.CurrentEvent		: InteractionEvent 	= None
 		self.PreviousEvent		: InteractionEvent 	= None
 		self.SelectedComp		: "objectCOMP"		= None
+
+		self.SelectStartEvent	: InteractionEvent	= None
+
+		self.ClickCount			: int				= 0
+		self.ClickTimer			: Run				= run("pass")
+
 		self.frameCache			: int				= 0
 
-		self.Buttons		: Button 			= Button
+		self.Buttons			: Button 			= Button
 		self.Utils				: dimensionalUtils	= dimensionalUtils 
 
 	@property
@@ -32,11 +38,11 @@ class extInteractionFramework:
 	def Camera(self) -> cameraCOMP:
 		return self.ownerComp.par.Cameracomp.eval()
 	@property 
-	def renderDimensions(self) -> Tuple[int, int]:
+	def RenderDimensions(self) -> Tuple[int, int]:
 		return self.ownerComp.par.Rendertop.eval().width, self.ownerComp.par.Rendertop.eval().height
 	 
 	def ProjectRay(self, u:float, v: float) -> dimensionalUtils.Ray:
-		projectionMatrix:tdu.Matrix 	= self.Camera.projectionInverse( *self.renderDimensions )
+		projectionMatrix:tdu.Matrix 	= self.Camera.projectionInverse( *self.RenderDimensions )
 		transformationMatrix:tdu.Matrix = self.Camera.transform()
 		remappedU 	= tdu.remap( u, 0, 1, -1, 1)
 		remappedV 	= tdu.remap( v, 0, 1, -1, 1)
@@ -72,6 +78,7 @@ class extInteractionFramework:
 			self.PanelComp.panel, 
 			self, 
 			SelectedComp = self.SelectedComp )
+		
 		if self.PreviousEvent.HoverComp != self.CurrentEvent.HoverComp:
 			if self.PreviousEvent.HoverComp:	
 				#Hover End
@@ -83,7 +90,11 @@ class extInteractionFramework:
 		
 		if self.CurrentEvent.Button != self.PreviousEvent.Button:
 			if self.CurrentEvent.Button.value:
-				self.SelectedComp = self.CurrentEvent.HoverComp
+				self.SelectedComp = self.SelectStartEvent = self.CurrentEvent.HoverComp
+				self.ClickCount += 1
+				self._stopClickTimer()
+				self.ClickTimer = run("args[0]()", lambda : self._checkClick( self.CurrentEvent ), delayMilliSeconds=self.ownerComp.par.Multitaptiming.eval())
+				
 				callbackEvents.append( "SelectStart" )
 				pass
 			if self.PreviousEvent.Button.value:
@@ -94,10 +105,26 @@ class extInteractionFramework:
 			callbackEvents.append("Move")
 
 		self.CurrentEvent.SelectedComp = self.SelectedComp
-		self.DoCallbacks( callbackEvents )
+		self._doCallbacks( callbackEvents )
 		pass
 
-	def DoCallbacks(self, callbackList : List[str]):
+	def _stopClickTimer(self):
+		try:
+			self.ClickTimer.kill()
+		except tdError:
+			pass
+
+	def _resetClick(self):
+		self.ClickCount = 0
+		self._stopClickTimer()
+		
+	def _checkClick(self, Event:InteractionEvent):
+		if Event.InteractiveComp == self.SelectedComp: return
+		self.ownerComp.op("callbackManager").Do_Callback("onClick", Event, self.ClickCount, self.ownerComp)
+		self._resetClick()
+		
+	
+	def _doCallbacks(self, callbackList : List[str]):
 		for callbackName in callbackList:
 			self.ownerComp.op("callbackManager").Do_Callback(
 				f"on{callbackName}", self.CurrentEvent, self.PreviousEvent, self.ownerComp
