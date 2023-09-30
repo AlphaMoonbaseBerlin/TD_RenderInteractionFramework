@@ -17,14 +17,8 @@ class Button(enum.Enum):
     Middle  = enum.auto()
     Right   = 4
 
-@dataclass
-class InteractionEvent:
-    Event           : "RenderPickEvent" = field(repr=False)
-    PanelValues     : Panel
-    Framework       : "extInteractionFramework"
-    SelectedComp    : "objectCOMP" = field( default = 0 )
-    Timestamp       : int = field( default_factory = lambda : int(absTime.seconds * 1000) )
 
+class PropertyFunctions:
     @cached_property
     def Button(self) -> Button:
         return Button( int(self.Event.inValues["aux"] ))
@@ -59,6 +53,25 @@ class InteractionEvent:
     @property
     def InteractiveComp(self) -> "objectCOMP":
         return self.SelectedComp or self.HoverComp
+
+@dataclass
+class InteractionEvent:
+    Event           : "RenderPickEvent" = field(repr=False)
+    PanelValues     : Panel
+    Framework       : "extInteractionFramework" = field( repr=False )
+    SelectedComp    : "objectCOMP" = field( default = 0 )
+    Timestamp       : int = field( default_factory = lambda : int(absTime.seconds * 1000) )
+
+    #Dynamic properties
+    Button                  : Button        = field( default = PropertyFunctions.Button , init=False)
+    WorldSpaceProjection    : tdu.Position  = field( default = PropertyFunctions.WorldSpaceProjection , init=False)
+    CameraProjection        : tdu.Position  = field( default = PropertyFunctions.CameraProjection , init=False)
+    PickSop                 : SOP           = field( default = PropertyFunctions.PickSop , init=False)
+    HoverComp               : "objectCOMP"  = field( default = PropertyFunctions.HoverComp , init=False)
+    InteractiveComp         : "objectCOMP"  = field( default = PropertyFunctions.InteractiveComp , init=False)
+    
+
+    
 
         
     
