@@ -5,16 +5,28 @@ Saveorigin : Project.toe
 Saveversion : 2022.32660
 Info Header End'''
 
+from interactionEvent import InteractionEvent, Button
 import dimensionalUtils
-from typing import Tuple
+from typing import Tuple, List
+
 class extInteractionFramework:
 	"""
 	extInteractionFramework description
 	"""
 	def __init__(self, ownerComp):
 		# The component to which this extension is attached
-		self.ownerComp:OP = ownerComp
-		self.hoverOp:tdu.Dependency[objectCOMP] = tdu.Dependency( None )
+		self.ownerComp 			: OP 				= ownerComp
+		self.CurrentEvent		: InteractionEvent 	= None
+		self.PreviousEvent		: InteractionEvent 	= None
+		self.SelectedComp		: "objectCOMP"		= None
+		self.frameCache			: int				= 0
+
+		self.Buttons		: Button 			= Button
+		self.Utils				: dimensionalUtils	= dimensionalUtils 
+
+	@property
+	def PanelComp(self) -> panelCOMP:
+		return self.ownerComp.par.Panelcomp.eval()
 
 	@property
 	def Camera(self) -> cameraCOMP:
@@ -47,10 +59,52 @@ class extInteractionFramework:
 			dimensionalUtils.CompPosition( self.Camera ) - dimensionalUtils.CompPosition( targetComp)
 		)
 
-	def HandleEvent(self, event:RenderPickEvent):
-		self.hoverOp.val = event.pickOp
+	def HandleEvent(self, event:"RenderPickEvent"):
+
+		if self.frameCache == absTime.frame: return
+		self.frameCache = absTime.frame
+
+
+		callbackEvents = []
+		self.PreviousEvent = self.CurrentEvent
+		self.CurrentEvent = InteractionEvent( 
+			event, 
+			self.PanelComp.panel, 
+			self, 
+			SelectedComp = self.SelectedComp )
+		if self.PreviousEvent.HoverComp != self.CurrentEvent.HoverComp:
+			if self.PreviousEvent.HoverComp:	
+				#Hover End
+				callbackEvents.append( "HoverEnd" )
+				pass
+			if self.CurrentEvent.HoverComp:
+				callbackEvents.append( "HoverStart" )
+				pass
 		
+		if self.CurrentEvent.Button != self.PreviousEvent.Button:
+			if self.CurrentEvent.Button.value:
+				self.SelectedComp = self.CurrentEvent.HoverComp
+				callbackEvents.append( "SelectStart" )
+				pass
+			if self.PreviousEvent.Button.value:
+				self.SelectedComp = None
+				callbackEvents.append( "SelectEnd" )
+
+		if self.SelectedComp and not callbackEvents:
+			callbackEvents.append("Move")
+
+		self.CurrentEvent.SelectedComp = self.SelectedComp
+		self.DoCallbacks( callbackEvents )
 		pass
 
+	def DoCallbacks(self, callbackList : List[str]):
+		for callbackName in callbackList:
+			self.ownerComp.op("callbackManager").Do_Callback(
+				f"on{callbackName}", self.CurrentEvent, self.PreviousEvent, self.ownerComp
+			)
+		return
+
 	def Testrun(self):
-		return self.ProjectRay(0.5, 0.5).ProjectOnPlane(self.GetCompPlane( self.ownerComp.par.Testcomp.eval()))
+		return self.ProjectRay(0.5, 0.5).ProjectOnPlane(
+			self.GetCompPlane( self.ownerComp.par.Testcomp.eval())
+		)
