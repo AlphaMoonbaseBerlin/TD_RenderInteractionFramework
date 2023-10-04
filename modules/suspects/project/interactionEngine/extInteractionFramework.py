@@ -136,7 +136,4 @@ class extInteractionFramework:
 			)
 		return
 
-	def Testrun(self):
-		return self.ProjectRay(0.5, 0.5).ProjectOnPlane(
-			self.GetCompPlane( self.ownerComp.par.Testcomp.eval())
-		)
+	
