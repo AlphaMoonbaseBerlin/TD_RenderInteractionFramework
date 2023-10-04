@@ -57,10 +57,19 @@ class PropertyFunctions:
 @dataclass
 class InteractionEvent:
     Event           : "RenderPickEvent" = field(repr=False)
+    """The RenderpickEvent that is used to evaluate"""
+
     PanelValues     : Panel
+    """The panelValue of the panel that triggered this event."""
+
     Framework       : "extInteractionFramework" = field( repr=False )
+    """The Frameework instance. Used for internal stuff."""
+
     SelectedComp    : "objectCOMP" = field( default = 0 )
+    """If this is an event based on selection, this value holds a GeoCOMP."""
+
     Timestamp       : int = field( default_factory = lambda : int(absTime.seconds * 1000) )
+    """TImestamp...."""
 
     #Dynamic properties
     Button                  : Button        = field( default = PropertyFunctions.Button , init=False)

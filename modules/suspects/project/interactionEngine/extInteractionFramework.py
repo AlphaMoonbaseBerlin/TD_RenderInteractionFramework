@@ -42,6 +42,7 @@ class extInteractionFramework:
 		return self.ownerComp.par.Rendertop.eval().width, self.ownerComp.par.Rendertop.eval().height
 	 
 	def ProjectRay(self, u:float, v: float) -> dimensionalUtils.Ray:
+		"""Project a Ray using the set-parameters in to the 3D-Scerne."""
 		projectionMatrix:tdu.Matrix 	= self.Camera.projectionInverse( *self.RenderDimensions )
 		transformationMatrix:tdu.Matrix = self.Camera.transform()
 		remappedU 	= tdu.remap( u, 0, 1, -1, 1)
@@ -54,18 +55,20 @@ class extInteractionFramework:
 			transformationMatrix * direction)
 	
 	def GetCompPlane(self, targetComp:COMP):
+		"""Get a plane using the target TransformationMatrix to project on to!"""
 		return dimensionalUtils.Plane(
 			dimensionalUtils.CompPosition( targetComp ),
 			targetComp.transform() * tdu.Vector( 0, 0, 1)
 		)
 	
 	def GetCompCameraPlane(self, targetComp:COMP):
+		"""Get a plane at the position of the target COMP, but being on the camera-plane."""
 		return dimensionalUtils.Plane(
 			dimensionalUtils.CompPosition( targetComp ),
 			dimensionalUtils.CompPosition( self.Camera ) - dimensionalUtils.CompPosition( targetComp)
 		)
 
-	def HandleEvent(self, event:"RenderPickEvent"):
+	def _HandleEvent(self, event:"RenderPickEvent"):
 
 		if self.frameCache == absTime.frame: return
 		self.frameCache = absTime.frame
@@ -116,19 +119,24 @@ class extInteractionFramework:
 			pass
 
 	def ResetClick(self):
+		"""Reset the click-counter/interaction to cancel Interactions."""
 		self.ClickCount = 0
 		self._stopClickTimer()
-		
+	
+	def PushCallback(self, callbackName:str, target:"objectCOMP" = None):
+		"""Call this function to push the callback with the given events to the targetCOMP or the current interactive Comp."""
+
+		( target or self.CurrentEvent.InteractiveComp ).op("InteractionEngine_CallbackManager").Do_Callback(
+				f"on{callbackName}", self.CurrentEvent, self.PreviousEvent, self.ownerComp, target
+			)
+
+
 	def _checkClick(self, Event:InteractionEvent):
 		if Event.InteractiveComp == self.SelectedComp: return
 		self.ownerComp.op("callbackManager").Do_Callback("onClick", Event, self.ClickCount, self.ownerComp)
 		self.ResetClick()
 		
-	def PushCallback(self, callbackName:str, target:"objectCOMP" = None):
-		( target or self.CurrentEvent.InteractiveComp ).op("InteractionEngine_CallbackManager").Do_Callback(
-				f"on{callbackName}", self.CurrentEvent, self.PreviousEvent, self.ownerComp, target
-			)
-
+	
 	def _doCallbacks(self, callbackList : List[str]):
 		for callbackName in callbackList:
 				self.ownerComp.op("callbackManager").Do_Callback(
