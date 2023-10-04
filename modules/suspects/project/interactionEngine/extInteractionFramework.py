@@ -90,8 +90,9 @@ class extInteractionFramework:
 		
 		if self.CurrentEvent.Button != self.PreviousEvent.Button:
 			if self.CurrentEvent.Button.value:
-				self.SelectedComp = self.SelectStartEvent = self.CurrentEvent.HoverComp
-				self.ClickCount += 1
+				self.SelectStartEvent 	= self.CurrentEvent
+				self.SelectedComp 		= self.CurrentEvent.HoverComp
+				self.ClickCount 		+= 1
 				self._stopClickTimer()
 				self.ClickTimer = run("args[0]()", lambda : self._checkClick( self.CurrentEvent ), delayMilliSeconds=self.ownerComp.par.Multitaptiming.eval())
 				
@@ -104,8 +105,8 @@ class extInteractionFramework:
 		if self.SelectedComp and not callbackEvents:
 			callbackEvents.append("Move")
 
-		self.CurrentEvent.SelectedComp = self.SelectedComp
 		self._doCallbacks( callbackEvents )
+		self.CurrentEvent.SelectedComp = self.SelectedComp
 		pass
 
 	def _stopClickTimer(self):
@@ -114,19 +115,23 @@ class extInteractionFramework:
 		except tdError:
 			pass
 
-	def _resetClick(self):
+	def ResetClick(self):
 		self.ClickCount = 0
 		self._stopClickTimer()
 		
 	def _checkClick(self, Event:InteractionEvent):
 		if Event.InteractiveComp == self.SelectedComp: return
 		self.ownerComp.op("callbackManager").Do_Callback("onClick", Event, self.ClickCount, self.ownerComp)
-		self._resetClick()
+		self.ResetClick()
 		
-	
+	def PushCallback(self, callbackName:str, target:"objectCOMP" = None):
+		( target or self.CurrentEvent.InteractiveComp ).op("InteractionEngine_CallbackManager").Do_Callback(
+				f"on{callbackName}", self.CurrentEvent, self.PreviousEvent, self.ownerComp, target
+			)
+
 	def _doCallbacks(self, callbackList : List[str]):
 		for callbackName in callbackList:
-			self.ownerComp.op("callbackManager").Do_Callback(
+				self.ownerComp.op("callbackManager").Do_Callback(
 				f"on{callbackName}", self.CurrentEvent, self.PreviousEvent, self.ownerComp
 			)
 		return
