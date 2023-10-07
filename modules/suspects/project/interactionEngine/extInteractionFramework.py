@@ -73,7 +73,6 @@ class extInteractionFramework:
 		if self.frameCache == absTime.frame: return
 		self.frameCache = absTime.frame
 
-
 		callbackEvents = []
 		self.PreviousEvent = self.CurrentEvent
 		self.CurrentEvent = InteractionEvent( 
@@ -82,6 +81,8 @@ class extInteractionFramework:
 			self, 
 			SelectedComp = self.SelectedComp )
 		
+		if self.PreviousEvent is None: return
+
 		if self.PreviousEvent.HoverComp != self.CurrentEvent.HoverComp:
 			if self.PreviousEvent.HoverComp:	
 				#Hover End
