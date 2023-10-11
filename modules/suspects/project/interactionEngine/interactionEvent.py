@@ -21,7 +21,7 @@ class Button(enum.Enum):
 class PropertyFunctions:
     @cached_property
     def Button(self) -> Button:
-        return Button( int(self.Event.inValues["aux"] ))
+        return Button( int(self.Event.inValues["aux"] or 0 ))
 
     @cached_property
     def WorldSpaceProjection(self) -> tdu.Position:
