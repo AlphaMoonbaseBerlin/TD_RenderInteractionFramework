@@ -1,8 +1,8 @@
 # Render Interaction Framework
 
 # Description
-The RenderInteractioNFramework enables the user to create engaging UIs and interactions in 3D Space, ignoring PanelCOMPs.
-The RIF works complelty in 3D-Süace and is resolution, scale and camera, indipendant, resulting in awesome scalable UIs no matter what,
+The RenderInteractionFramework enables the user to create engaging UIs and interactions in 3D Space, ignoring PanelCOMPs.
+The RIF works completly in 3D-Space and is resolution, scale and camera indipendant, resulting in awesome scalable UIs no matter what,
 
 # Version
 2022.32660
