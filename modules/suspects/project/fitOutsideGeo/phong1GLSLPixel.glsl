@@ -7,7 +7,7 @@ Info Header End */
 
 uniform float uAlphaFront;
 uniform sampler2D sColorMap;
-uniform int uFitMode;
+uniform float uFitMode;
 uniform float uScale;
 uniform vec2 uAnchor;
 
@@ -40,34 +40,40 @@ void main()
 	//Getting and calculating initital textureLookup.
 	vec2 textureSize = vec2( textureSize( sColorMap, 0 ) ) / geometryScaling;
 		
-	vec2 textureScaling = vec2(1/uScale);
-	vec2 textureOffset = vec2(0);
+	//vec2 textureScaling = vec2(1/uScale);
+	vec2 textureScalingFitInside = vec2(1/uScale);
+	vec2 textureScalingFitOutside = vec2(1/uScale);
+	//vec2 textureOffset = vec2(0);
+	vec2 textureOffsetFitInside = vec2(0);
+	vec2 textureOffsetFitOutside = vec2(0);
 
-
+	float textureRelation = 1;
 	//Doing Fitmode! 
 	//TODO: Make them slerpable.
-	if(uFitMode == 0) {
+	
 		//Fit Inside
-		float textureRelation = float(textureSize.x) / float(textureSize.y);
+		textureRelation = float(textureSize.x) / float(textureSize.y);
 		if ( textureSize.x > textureSize.y) {
-			textureScaling.y *= textureRelation;
-			textureOffset.y = (1 - textureRelation)/2*uAnchor.y;
+			textureScalingFitInside.y *= textureRelation;
+			textureOffsetFitInside.y = (1 - textureRelation)/2*uAnchor.y;
 		} else {
-			textureScaling.x /= textureRelation;
-			textureOffset.x = (1 - 1/textureRelation)/2*uAnchor.x;
+			textureScalingFitInside.x /= textureRelation;
+			textureOffsetFitInside.x = (1 - 1/textureRelation)/2*uAnchor.x;
 		}
-	}
-	if(uFitMode == 1) {
+	
+	
 		//Fit Inside
-		float textureRelation = float(textureSize.y) / float(textureSize.x);
+		textureRelation = float(textureSize.y) / float(textureSize.x);
 		if ( textureSize.x < textureSize.y) {
-			textureScaling.y /= textureRelation;
-			textureOffset.y = (1 - 1/textureRelation)/2*uAnchor.y;
+			textureScalingFitOutside.y /= textureRelation;
+			textureOffsetFitOutside.y = (1 - 1/textureRelation)/2*uAnchor.y;
 		} else {
-			textureScaling.x *= textureRelation;
-			textureOffset.x = (1 - textureRelation)/2*uAnchor.x;
+			textureScalingFitOutside.x *= textureRelation;
+			textureOffsetFitOutside.x = (1 - textureRelation)/2*uAnchor.x;
 		}
-	}
+	
+	vec2 textureScaling = mix(textureScalingFitInside, textureScalingFitOutside, uFitMode);
+	vec2 textureOffset = mix(textureOffsetFitInside, textureOffsetFitOutside, uFitMode);
 	vec2 texCoord0 = iVert.texCoord0.st * textureScaling + textureOffset;
 	
 
