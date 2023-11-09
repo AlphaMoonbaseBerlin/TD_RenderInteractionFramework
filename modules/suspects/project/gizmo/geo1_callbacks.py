@@ -6,9 +6,11 @@ Saveversion : 2022.32660
 Info Header End'''
 
 def onMoving(Event, PrevEvent, interactionEngine, geoCOMP):
-	revertedPosition =  Event.InteractiveComp.localTransform.getInverse() * Event.WorldSpaceProjection
-	revertedPosition.y = 0
-	revertedPosition.z = 0
+	
+	
+	delta =  Event.InteractiveComp.localTransform.getInverse() * (  Event.WorldSpaceProjection - PrevEvent.WorldSpaceProjection )
+	delta.y = 0
+	delta.z = 0
 
-	parent.Gizmo.parGroup.t.val = Event.InteractiveComp.localTransform * revertedPosition
+	parent.Gizmo.parGroup.t.val += Event.InteractiveComp.localTransform * delta
 	
