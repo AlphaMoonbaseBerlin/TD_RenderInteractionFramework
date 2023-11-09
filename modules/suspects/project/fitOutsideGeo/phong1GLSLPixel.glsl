@@ -19,7 +19,7 @@ in Vertex
 	vec3 worldSpaceNorm;
 	vec2 texCoord0;
 	flat int cameraIndex;
-	mat4 wolrdTransform;
+	mat4 worldTransform;
 } iVert;
 
 // Output variable for the color
@@ -31,11 +31,12 @@ void main()
 	TDCheckDiscard();
 	
 	//Calculating the Geometry Scale
-	vec4 up 		= iVert.wolrdTransform * vec4(0,1,0,0);
-	vec4 right 		= iVert.wolrdTransform * vec4(1,0,0,0);
-	vec4 center 	= iVert.wolrdTransform * vec4(0,0,0,0);
+	vec3 up 		= mat3(iVert.worldTransform) * vec3(0,1,0);
+	vec3 right 		= mat3(iVert.worldTransform) * vec3(1,0,0);
+	//vec4 center 	= iVert.worldTransform * vec4(0,0,0,0);
 
-	vec2 geometryScaling 	= vec2(length( center - right), length(center - up));
+	vec2 geometryScaling 	= vec2(length( right), length( up));
+	//vec2 geometryScaling 	= vec2(length( center - right), length(center - up));
 
 	//Getting and calculating initital textureLookup.
 	vec2 textureSize = vec2( textureSize( sColorMap, 0 ) ) / geometryScaling;

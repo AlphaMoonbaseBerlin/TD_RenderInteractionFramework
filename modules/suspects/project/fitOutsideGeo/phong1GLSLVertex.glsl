@@ -13,12 +13,12 @@ out Vertex
 	vec3 worldSpaceNorm;
 	vec2 texCoord0;
 	flat int cameraIndex;
-	mat4 wolrdTransform;
+	mat4 worldTransform;
 } oVert;
 
 void main()
 {
-	oVert.wolrdTransform = uTDMats[TDCameraIndex()].world;
+	oVert.worldTransform = uTDMats[TDCameraIndex()].world;
 	gl_PointSize = 1.0;
 	{ // Avoid duplicate variable defs
 		vec3 texcoord = TDInstanceTexCoord(uv[0]);
