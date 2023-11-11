@@ -68,6 +68,14 @@ class extInteractionFramework:
 			dimensionalUtils.CompPosition( self.Camera ) - dimensionalUtils.CompPosition( targetComp)
 		)
 
+	def PreapreGeoComp(self, targetComp:"objectCOMP"):
+		targetComp.par.parentshortcut.val = "InteractiveOP"
+		targetComp.par.parentshortcut.readOnly = True
+		(targetComp.op("InteractionEngine_CallbackManager") or targetComp.copy(
+			self.ownerComp.op("InteractionEngine_CallbackManager")
+		)).InitOwner()
+		targetComp.pickable = True
+		
 	def _HandleEvent(self, event:"RenderPickEvent"):
 
 		if self.frameCache == absTime.frame: return
