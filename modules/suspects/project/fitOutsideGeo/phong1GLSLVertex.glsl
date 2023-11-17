@@ -13,12 +13,19 @@ out Vertex
 	vec3 worldSpaceNorm;
 	vec2 texCoord0;
 	flat int cameraIndex;
-	mat4 worldTransform;
+	
+
+	vec2 instanceScale;
 } oVert;
 
 void main()
-{
-	oVert.worldTransform = uTDMats[TDCameraIndex()].world;
+{	
+
+	vec3 xScaleVector = TDDeformVec( vec3(1,0,0));
+	vec3 yScaleVector = TDDeformVec( vec3(0,1,0));
+	oVert.instanceScale = vec2( length( xScaleVector ), length( yScaleVector ));
+
+	
 	gl_PointSize = 1.0;
 	{ // Avoid duplicate variable defs
 		vec3 texcoord = TDInstanceTexCoord(uv[0]);

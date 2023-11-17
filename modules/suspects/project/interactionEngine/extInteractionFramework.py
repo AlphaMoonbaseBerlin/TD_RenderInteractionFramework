@@ -75,7 +75,7 @@ class extInteractionFramework:
 			self.ownerComp.op("InteractionEngine_CallbackManager")
 		)).InitOwner()
 		targetComp.pickable = True
-		
+
 	def _HandleEvent(self, event:"RenderPickEvent"):
 
 		if self.frameCache == absTime.frame: return
@@ -134,9 +134,9 @@ class extInteractionFramework:
 	
 	def PushCallback(self, callbackName:str, target:"objectCOMP" = None):
 		"""Call this function to push the callback with the given events to the targetCOMP or the current interactive Comp."""
-
-		( target or self.CurrentEvent.InteractiveComp ).op("InteractionEngine_CallbackManager").Do_Callback(
-				f"on{callbackName}", self.CurrentEvent, self.PreviousEvent, self.ownerComp, target
+		actualTarget = target or self.CurrentEvent.InteractiveComp
+		actualTarget.op("InteractionEngine_CallbackManager").Do_Callback(
+				callbackName, self.CurrentEvent, self.PreviousEvent, self.ownerComp, actualTarget
 			)
 
 

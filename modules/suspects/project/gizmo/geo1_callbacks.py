@@ -5,7 +5,7 @@ Saveorigin : Project.toe
 Saveversion : 2022.32660
 Info Header End'''
 
-def onMoving(Event, PrevEvent, interactionEngine, geoCOMP):
+def Moving(Event, PrevEvent, interactionEngine, geoCOMP):
 	
 	
 	delta =  Event.InteractiveComp.localTransform.getInverse() * (  Event.WorldSpaceProjection - PrevEvent.WorldSpaceProjection )
