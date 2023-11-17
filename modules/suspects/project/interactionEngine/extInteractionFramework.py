@@ -8,6 +8,8 @@ Info Header End'''
 from interactionEvent import InteractionEvent, Button
 import dimensionalUtils
 from typing import Tuple, List
+import TDJSON
+
 
 class extInteractionFramework:
 	"""
@@ -68,12 +70,20 @@ class extInteractionFramework:
 			dimensionalUtils.CompPosition( self.Camera ) - dimensionalUtils.CompPosition( targetComp)
 		)
 
-	def PreapreGeoComp(self, targetComp:"objectCOMP"):
-		targetComp.par.parentshortcut.val = "InteractiveOP"
-		targetComp.par.parentshortcut.readOnly = True
+	def PrepareGeoComp(self, targetComp:"objectCOMP"):
+		targetComp.par.parentshortcut.val 		= "InteractiveOP"
+		targetComp.par.parentshortcut.readOnly 	= True
+		TDJSON.addParametersFromJSONOp(
+			targetComp,
+			TDJSON.opToJSONOp(
+				self.ownerComp.op("parameterPrefabRepo").Repo,
+			)
+		)
+		
 		(targetComp.op("InteractionEngine_CallbackManager") or targetComp.copy(
 			self.ownerComp.op("InteractionEngine_CallbackManager")
 		)).InitOwner()
+		
 		targetComp.pickable = True
 
 	def _HandleEvent(self, event:"RenderPickEvent"):

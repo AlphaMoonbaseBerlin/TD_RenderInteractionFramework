@@ -5,12 +5,17 @@ Saveorigin : Project.toe
 Saveversion : 2022.32660
 Info Header End'''
 
+def calculate( Event ):
+	normalized = Event.InteractiveComp.worldTransform.getInverse() *  Event.WorldSpaceProjection
+	normalized.y = 0
+	normalized.z = 0
+	return Event.InteractiveComp.worldTransform * normalized
+
 def Moving(Event, PrevEvent, interactionEngine, geoCOMP):
 	
 	
-	delta =  Event.InteractiveComp.localTransform.getInverse() * (  Event.WorldSpaceProjection - PrevEvent.WorldSpaceProjection )
-	delta.y = 0
-	delta.z = 0
+	delta = calculate( Event ) - calculate( PrevEvent )
+	
+	parent().par.Target.eval().parGroup.t.val += delta
 
-	parent.Gizmo.parGroup.t.val += Event.InteractiveComp.localTransform * delta
 	
