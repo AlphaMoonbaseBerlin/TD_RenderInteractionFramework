@@ -22,6 +22,10 @@ class PropertyFunctions:
     @cached_property
     def Button(self) -> Button:
         return Button( int(self.Event.inValues["aux"] or 0 ))
+    
+    @cached_property
+    def InstanceId(self) -> Button:
+        return self.Event.instanceId
 
     @cached_property
     def WorldSpaceProjection(self) -> tdu.Position:
@@ -56,9 +60,9 @@ class PropertyFunctions:
 
 @dataclass
 class InteractionEvent:
-    Event           : "RenderPickEvent" = field(repr=False)
+    Event           : "RenderPickEvent" = field( repr = False)
     """The RenderpickEvent that is used to evaluate"""
-
+    
     PanelValues     : Panel
     """The panelValue of the panel that triggered this event."""
 
@@ -70,8 +74,9 @@ class InteractionEvent:
 
     Timestamp       : int = field( default_factory = lambda : int(absTime.seconds * 1000) )
     """TImestamp...."""
-
+    
     #Dynamic properties
+    InstanceId              : int           = field( default = PropertyFunctions.InstanceId, init = False)
     Button                  : Button        = field( default = PropertyFunctions.Button , init=False)
     WorldSpaceProjection    : tdu.Position  = field( default = PropertyFunctions.WorldSpaceProjection , init=False)
     CameraProjection        : tdu.Position  = field( default = PropertyFunctions.CameraProjection , init=False)

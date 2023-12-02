@@ -110,13 +110,15 @@ class extInteractionFramework:
 				callbackEvents.append( "HoverStart" )
 				pass
 		
+
 		if self.CurrentEvent.Button != self.PreviousEvent.Button:
 			if self.CurrentEvent.Button.value:
 				self.SelectStartEvent 	= self.CurrentEvent
 				self.SelectedComp 		= self.CurrentEvent.HoverComp
 				self.ClickCount 		+= 1
 				self._stopClickTimer()
-				self.ClickTimer = run("args[0]()", lambda : self._checkClick( self.CurrentEvent ), delayMilliSeconds=self.ownerComp.par.Multitaptiming.eval())
+				proxyEvent = self.CurrentEvent
+				self.ClickTimer = run("args[0]()", lambda : self._checkClick( proxyEvent ), delayMilliSeconds = self.ownerComp.par.Multitaptiming.eval())
 				
 				callbackEvents.append( "SelectStart" )
 				pass
@@ -126,6 +128,8 @@ class extInteractionFramework:
 
 		if self.SelectedComp and not callbackEvents:
 			callbackEvents.append("Move")
+
+		if self.CurrentEvent.HoverComp : callbackEvents.append( "HoverMove" )
 
 		self._doCallbacks( callbackEvents )
 		self.CurrentEvent.SelectedComp = self.SelectedComp
@@ -151,7 +155,9 @@ class extInteractionFramework:
 
 
 	def _checkClick(self, Event:InteractionEvent):
+		
 		if Event.InteractiveComp == self.SelectedComp: return
+		debug(Event)
 		self.ownerComp.op("callbackManager").Do_Callback("onClick", Event, self.ClickCount, self.ownerComp)
 		self.ResetClick()
 		
