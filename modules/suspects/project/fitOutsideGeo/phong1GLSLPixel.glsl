@@ -6,11 +6,12 @@ Saveversion : 2022.32660
 Info Header End */
 
 uniform float uAlphaFront;
-uniform sampler2D sColorMap;
+uniform sampler2D sColorMapA;
+uniform sampler2D sColorMapB;
 uniform float uFitMode;
 uniform float uScale;
 uniform vec2 uAnchor;
-
+uniform float uCross;
 
 in Vertex
 {
@@ -24,27 +25,21 @@ in Vertex
 
 // Output variable for the color
 layout(location = 0) out vec4 oFragColor[TD_NUM_COLOR_BUFFERS];
-void main()
-{
-	// This allows things such as order independent transparency
-	// and Dual-Paraboloid rendering to work properly
-	TDCheckDiscard();
-	
+
+
+vec4 calculateFit( sampler2D colorMap ){
 	vec2 geometryScaling = iVert.instanceScale;
 
 	//Getting and calculating initital textureLookup.
-	vec2 textureSize = vec2( textureSize( sColorMap, 0 ) ) / geometryScaling;
+	vec2 textureSize = vec2( textureSize( colorMap, 0 ) ) / geometryScaling;
 		
-	//vec2 textureScaling = vec2(1/uScale);
 	vec2 textureScalingFitInside = vec2(1/uScale);
 	vec2 textureScalingFitOutside = vec2(1/uScale);
-	//vec2 textureOffset = vec2(0);
+
 	vec2 textureOffsetFitInside = vec2(0);
 	vec2 textureOffsetFitOutside = vec2(0);
 
 	float textureRelation = 1;
-	//Doing Fitmode! 
-	//TODO: Make them slerpable.
 	
 		//Fit Inside
 		textureRelation = float(textureSize.x) / float(textureSize.y);
@@ -70,13 +65,22 @@ void main()
 	vec2 textureScaling = mix(textureScalingFitInside, textureScalingFitOutside, uFitMode);
 	vec2 textureOffset = mix(textureOffsetFitInside, textureOffsetFitOutside, uFitMode);
 	vec2 texCoord0 = iVert.texCoord0.st * textureScaling + textureOffset;
+	return texture(colorMap, texCoord0.st);
+}
+
+void main()
+{
+	// This allows things such as order independent transparency
+	// and Dual-Paraboloid rendering to work properly
+	TDCheckDiscard();
 	
 
-	vec4 colorMapColor = texture(sColorMap, texCoord0.st);
-	//colorMapColor.rg = vec2(relation);
-	
-	//colorMapColor.b = 0;
-	//colorMapColor.rgb = up.rgb;
+
+	vec4 colorMapColor = mix(
+		calculateFit( sColorMapA ),
+		calculateFit( sColorMapB ),
+		uCross
+	);
 
 
 	// Flip the normals on backfaces
