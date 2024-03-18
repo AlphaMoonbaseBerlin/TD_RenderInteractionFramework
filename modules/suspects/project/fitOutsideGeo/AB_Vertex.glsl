@@ -1,9 +1,10 @@
 /* Info Header Start
-Name : phong1GLSLVertex
+Name : AB_Vertex
 Author : Wieland@AMB-ZEPH15
 Saveorigin : Project.toe
 Saveversion : 2022.32660
 Info Header End */
+
 
 uniform float uAlphaFront;
 out Vertex

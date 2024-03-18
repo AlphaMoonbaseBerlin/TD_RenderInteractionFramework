@@ -1,9 +1,10 @@
 /* Info Header Start
-Name : phong1GLSLPixel
+Name : Single_Pixel
 Author : Wieland@AMB-ZEPH15
 Saveorigin : Project.toe
 Saveversion : 2022.32660
 Info Header End */
+
 
 uniform float uAlphaFront;
 uniform sampler2D sColorMapA;
@@ -12,7 +13,7 @@ uniform float uFitMode;
 uniform float uScale;
 uniform vec2 uAnchor;
 uniform float uCross;
-
+uniform vec2 uCorner;
 in Vertex
 {
 	vec4 color;
@@ -25,48 +26,8 @@ in Vertex
 
 // Output variable for the color
 layout(location = 0) out vec4 oFragColor[TD_NUM_COLOR_BUFFERS];
+#include <shaderUtils>
 
-
-vec4 calculateFit( sampler2D colorMap ){
-	vec2 geometryScaling = iVert.instanceScale;
-
-	//Getting and calculating initital textureLookup.
-	vec2 textureSize = vec2( textureSize( colorMap, 0 ) ) / geometryScaling;
-		
-	vec2 textureScalingFitInside = vec2(1/uScale);
-	vec2 textureScalingFitOutside = vec2(1/uScale);
-
-	vec2 textureOffsetFitInside = vec2(0);
-	vec2 textureOffsetFitOutside = vec2(0);
-
-	float textureRelation = 1;
-	
-		//Fit Inside
-		textureRelation = float(textureSize.x) / float(textureSize.y);
-		if ( textureSize.x > textureSize.y) {
-			textureScalingFitInside.y *= textureRelation;
-			textureOffsetFitInside.y = (1 - textureRelation)/2*uAnchor.y;
-		} else {
-			textureScalingFitInside.x /= textureRelation;
-			textureOffsetFitInside.x = (1 - 1/textureRelation)/2*uAnchor.x;
-		}
-	
-	
-		//Fit Inside
-		textureRelation = float(textureSize.y) / float(textureSize.x);
-		if ( textureSize.x < textureSize.y) {
-			textureScalingFitOutside.y /= textureRelation;
-			textureOffsetFitOutside.y = (1 - 1/textureRelation)/2*uAnchor.y;
-		} else {
-			textureScalingFitOutside.x *= textureRelation;
-			textureOffsetFitOutside.x = (1 - textureRelation)/2*uAnchor.x;
-		}
-	
-	vec2 textureScaling = mix(textureScalingFitInside, textureScalingFitOutside, uFitMode);
-	vec2 textureOffset = mix(textureOffsetFitInside, textureOffsetFitOutside, uFitMode);
-	vec2 texCoord0 = iVert.texCoord0.st * textureScaling + textureOffset;
-	return texture(colorMap, texCoord0.st);
-}
 
 void main()
 {
@@ -76,7 +37,7 @@ void main()
 	
 
 
-	vec4 colorMapColor = calculateFit( sColorMapA );
+	vec4 colorMapColor = calculateFit( sColorMapA, iVert.instanceScale, iVert.texCoord0, uCorner.x, uCorner.y );
 
 
 	// Flip the normals on backfaces
