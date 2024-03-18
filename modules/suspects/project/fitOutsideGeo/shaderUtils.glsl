@@ -63,13 +63,15 @@ vec4 calculateFit( sampler2D colorMap, vec2 geometryScaling, vec2 texCoord, floa
 	vec2 textureOffset = mix(textureOffsetFitInside, textureOffsetFitOutside, uFitMode);
 	vec2 texCoord0 = texCoord * textureScaling + textureOffset;
 	vec4 outputTexture = texture(colorMap, texCoord0.st);
-	
-	float roundEdge = smoothstep(0, cornerFeather, -sdRoundBox(  
-		min((texCoord + textureOffset * textureRelation )  * geometryScaling, texCoord * geometryScaling)  ,
-		min(geometryScaling / textureScaling, geometryScaling) , 
-		cornerRadius) );
 
-	outputTexture *= roundEdge;
+	#ifdef CORNEREDIT
+		float roundEdge = smoothstep(0, cornerFeather, -sdRoundBox(  
+			min((texCoord + textureOffset * textureRelation )  * geometryScaling, texCoord * geometryScaling)  ,
+			min(geometryScaling / textureScaling, geometryScaling) , 
+			cornerRadius) );
+
+		outputTexture *= roundEdge;
+	#endif
 	//outputTexture.r = textureRelation;
 	
 	return outputTexture;

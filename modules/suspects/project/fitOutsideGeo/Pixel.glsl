@@ -1,9 +1,16 @@
 /* Info Header Start
-Name : Single_Pixel
+Name : Pixel
 Author : Wieland@AMB-ZEPH15
 Saveorigin : Project.toe
 Saveversion : 2022.32660
 Info Header End */
+/* Info Header Start
+Name : AB_Pixel
+Author : Wieland@AMB-ZEPH15
+Saveorigin : Project.toe
+Saveversion : 2022.32660
+Info Header End */
+
 
 
 uniform float uAlphaFront;
@@ -13,7 +20,9 @@ uniform float uFitMode;
 uniform float uScale;
 uniform vec2 uAnchor;
 uniform float uCross;
+
 uniform vec2 uCorner;
+
 in Vertex
 {
 	vec4 color;
@@ -26,8 +35,9 @@ in Vertex
 
 // Output variable for the color
 layout(location = 0) out vec4 oFragColor[TD_NUM_COLOR_BUFFERS];
-#include <shaderUtils>
 
+
+#include <shaderUtils>
 
 void main()
 {
@@ -36,9 +46,16 @@ void main()
 	TDCheckDiscard();
 	
 
-
-	vec4 colorMapColor = calculateFit( sColorMapA, iVert.instanceScale, iVert.texCoord0, uCorner.x, uCorner.y );
-
+	#if (TEXTUREMODE == AB)
+		vec4 colorMapColor = mix(
+			calculateFit( sColorMapA, iVert.instanceScale, iVert.texCoord0, uCorner.x, uCorner.y ),
+			calculateFit( sColorMapB, iVert.instanceScale, iVert.texCoord0, uCorner.x, uCorner.y ),
+			uCross
+		);
+	#endif
+	#if (TEXTUREMODE == Single)
+		vec4 colorMapColor = calculateFit( sColorMapA, iVert.instanceScale, iVert.texCoord0, uCorner.x, uCorner.y );
+	#endif
 
 	// Flip the normals on backfaces
 	// On most GPUs this function just return gl_FrontFacing.

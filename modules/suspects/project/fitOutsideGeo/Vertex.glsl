@@ -1,4 +1,10 @@
 /* Info Header Start
+Name : Vertex
+Author : Wieland@AMB-ZEPH15
+Saveorigin : Project.toe
+Saveversion : 2022.32660
+Info Header End */
+/* Info Header Start
 Name : AB_Vertex
 Author : Wieland@AMB-ZEPH15
 Saveorigin : Project.toe
@@ -26,7 +32,9 @@ void main()
 	vec3 yScaleVector = TDDeformVec( vec3(0,1,0));
 	oVert.instanceScale = vec2( length( xScaleVector ), length( yScaleVector ));
 
-	
+	#if ( MIXMODE == 1 )
+	xScaleVector.x = 9999;
+	#endif
 	gl_PointSize = 1.0;
 	{ // Avoid duplicate variable defs
 		vec3 texcoord = TDInstanceTexCoord(uv[0]);
