@@ -76,11 +76,7 @@ void main()
 	
 
 
-	vec4 colorMapColor = mix(
-		calculateFit( sColorMapA ),
-		calculateFit( sColorMapB ),
-		uCross
-	);
+	vec4 colorMapColor = calculateFit( sColorMapA );
 
 
 	// Flip the normals on backfaces
