@@ -20,6 +20,7 @@ uniform float uFitMode;
 uniform float uScale;
 uniform vec2 uAnchor;
 uniform float uCross;
+uniform vec4 uBackgroundColor;
 
 uniform vec2 uCorner;
 
@@ -57,6 +58,11 @@ void main()
 		vec4 colorMapColor = calculateFit( sColorMapA, iVert.instanceScale, iVert.texCoord0, uCorner.x, uCorner.y );
 	#endif
 
+	//Backgroundcolor
+	vec4 overBackground = mix(
+		uBackgroundColor,colorMapColor, colorMapColor.a
+	);
+	overBackground *= colorMapColor.a;
 	// Flip the normals on backfaces
 	// On most GPUs this function just return gl_FrontFacing.
 	// However, some Intel GPUs on macOS have broken gl_FrontFacing behavior.
@@ -73,7 +79,7 @@ void main()
 
 	// Modern GL removed the implicit alpha test, so we need to apply
 	// it manually here. This function does nothing if alpha test is disabled.
-	vec4 finalColor = vec4( colorMapColor );
+	vec4 finalColor = vec4( overBackground );
 	finalColor *= uAlphaFront;
 	TDAlphaTest(finalColor.a);
 
