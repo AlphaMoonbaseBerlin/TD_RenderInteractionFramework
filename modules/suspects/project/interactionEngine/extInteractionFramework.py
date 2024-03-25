@@ -1,7 +1,7 @@
 '''Info Header Start
 Name : extInteractionFramework
 Author : Wieland@AMB-ZEPH15
-Saveorigin : Project.toe
+Saveorigin : RIF_Project.toe
 Saveversion : 2022.32660
 Info Header End'''
 
@@ -81,7 +81,7 @@ class extInteractionFramework:
 		)
 		
 		(targetComp.op("InteractionEngine_CallbackManager") or targetComp.copy(
-			self.ownerComp.op("InteractionEngine_CallbackManager")
+			self.ownerComp.op("parameterPrefabRepo").Repo.op("InteractionEngine_CallbackManager")
 		)).InitOwner()
 		
 		targetComp.pickable = True
