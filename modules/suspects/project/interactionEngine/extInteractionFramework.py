@@ -100,7 +100,6 @@ class extInteractionFramework:
 			SelectedComp = self.SelectedComp )
 		
 		if self.PreviousEvent is None: return
-
 		if self.PreviousEvent.HoverComp != self.CurrentEvent.HoverComp:
 			if self.PreviousEvent.HoverComp:	
 				#Hover End
@@ -110,14 +109,14 @@ class extInteractionFramework:
 				callbackEvents.append( "HoverStart" )
 				pass
 		
-
+		proxyEvent = self.CurrentEvent
 		if self.CurrentEvent.Button != self.PreviousEvent.Button:
 			if self.CurrentEvent.Button.value:
 				self.SelectStartEvent 	= self.CurrentEvent
 				self.SelectedComp 		= self.CurrentEvent.HoverComp
 				self.ClickCount 		+= 1
 				self._stopClickTimer()
-				proxyEvent = self.CurrentEvent
+				
 				self.ClickTimer = run("args[0]()", lambda : self._checkClick( proxyEvent ), delayMilliSeconds = self.ownerComp.par.Multitaptiming.eval())
 				
 				callbackEvents.append( "SelectStart" )
@@ -125,7 +124,10 @@ class extInteractionFramework:
 			if self.PreviousEvent.Button.value:
 				self.SelectedComp = None
 				callbackEvents.append( "SelectEnd" )
-
+				
+				if not self._activeTimer( self.ClickTimer):
+					self._checkClick( proxyEvent )
+		#self.ownerComp.op("logger").Log("Selected Comp", self.SelectedComp)
 		if self.SelectedComp and not callbackEvents:
 			callbackEvents.append("Move")
 
@@ -134,6 +136,13 @@ class extInteractionFramework:
 		self._doCallbacks( callbackEvents )
 		self.CurrentEvent.SelectedComp = self.SelectedComp
 		pass
+
+	def _activeTimer(self, timerObject:Run):
+		try:
+			return timerObject.active
+		except tdError:
+			pass
+		return False
 
 	def _stopClickTimer(self):
 		try:
@@ -157,13 +166,13 @@ class extInteractionFramework:
 	def _checkClick(self, Event:InteractionEvent):
 		
 		if Event.InteractiveComp == self.SelectedComp: return
-		debug(Event)
 		self.ownerComp.op("callbackManager").Do_Callback("onClick", Event, self.ClickCount, self.ownerComp)
 		self.ResetClick()
 		
 	
 	def _doCallbacks(self, callbackList : List[str]):
 		for callbackName in callbackList:
+				self.ownerComp.op("logger").Log("Callback", callbackName)
 				self.ownerComp.op("callbackManager").Do_Callback(
 				f"on{callbackName}", self.CurrentEvent, self.PreviousEvent, self.ownerComp
 			)
