@@ -4,6 +4,9 @@ Author : Wieland@AMB-ZEPH15
 Saveorigin : Project.toe
 Saveversion : 2022.32660
 Info Header End */
+
+uniform float uBorderWidth;
+uniform vec4 uBorderColor;
 float udRoundBox( vec2 p, vec2 b, float r )
 {
   return length(max(abs(p),b))-r;
@@ -65,12 +68,21 @@ vec4 calculateFit( sampler2D colorMap, vec2 geometryScaling, vec2 texCoord, floa
 	vec4 outputTexture = texture(colorMap, texCoord0.st);
 
 	#ifdef CORNEREDIT
-		float roundEdge = smoothstep(0, cornerFeather, -sdRoundBox(  
+		float distance = -sdRoundBox(  
 			min((texCoord + textureOffset * textureRelation )  * geometryScaling, texCoord * geometryScaling)  ,
 			min(geometryScaling / textureScaling, geometryScaling) , 
-			cornerRadius) );
+			cornerRadius) ;
 
-		outputTexture *= roundEdge;
+		outputTexture = mix( 
+			uBorderColor,
+			outputTexture,
+			smoothstep(
+				uBorderWidth, uBorderWidth + cornerFeather, distance
+			) );
+		//Runding the Edges
+		outputTexture *= smoothstep(0, cornerFeather, distance) ;
+		//Doing Border
+	
 	#endif
 	//outputTexture.r = textureRelation;
 	
