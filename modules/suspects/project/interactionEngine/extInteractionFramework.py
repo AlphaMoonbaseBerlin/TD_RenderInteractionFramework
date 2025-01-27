@@ -2,7 +2,7 @@
 Name : extInteractionFramework
 Author : Wieland@AMB-ZEPH15
 Saveorigin : RIF_Project.toe
-Saveversion : 2022.32660
+Saveversion : 2023.12000
 Info Header End'''
 
 from interactionEvent import InteractionEvent, Button
@@ -88,7 +88,7 @@ class extInteractionFramework:
 
 	def _HandleEvent(self, event:"RenderPickEvent"):
 
-		if self.frameCache == absTime.frame: return
+		if self.frameCache == absTime.frame and self.ownerComp.par.Limittoonceperframe.eval(): return
 		self.frameCache = absTime.frame
 
 		callbackEvents = []
@@ -102,7 +102,6 @@ class extInteractionFramework:
 		if self.PreviousEvent is None: return
 		if self.PreviousEvent.HoverComp != self.CurrentEvent.HoverComp:
 			if self.PreviousEvent.HoverComp:	
-				#Hover End
 				callbackEvents.append( "HoverEnd" )
 				pass
 			if self.CurrentEvent.HoverComp:
@@ -117,7 +116,11 @@ class extInteractionFramework:
 				self.ClickCount 		+= 1
 				self._stopClickTimer()
 				
-				self.ClickTimer = run("args[0]()", lambda : self._checkClick( proxyEvent ), delayMilliSeconds = self.ownerComp.par.Multitaptiming.eval())
+				self.ClickTimer = run(
+					"args[0]()", 
+					lambda : self._checkClick( proxyEvent ), 
+					delayMilliSeconds = self.ownerComp.par.Multitaptiming.eval()
+				)
 				
 				callbackEvents.append( "SelectStart" )
 				pass
@@ -125,8 +128,9 @@ class extInteractionFramework:
 				self.SelectedComp = None
 				callbackEvents.append( "SelectEnd" )
 				
-				if not self._activeTimer( self.ClickTimer):
+				if not self._activeTimer( self.ClickTimer ):
 					self._checkClick( proxyEvent )
+	
 		#self.ownerComp.op("logger").Log("Selected Comp", self.SelectedComp)
 		if self.SelectedComp and not callbackEvents:
 			callbackEvents.append("Move")
